@@ -35,6 +35,9 @@ else
     echo "config/settings.json already exists"
 fi
 
+# Create initialization marker file
+touch "$CONFIG_DIR/.initialized"
+
 echo ""
 echo "Initialization complete!"
 echo ""
