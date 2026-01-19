@@ -37,25 +37,33 @@ When the user describes an activity, log it using the `log_event.sh` tool.
 
 ### Logging Workflow
 
-1. Parse the user's natural language input to extract:
+1. **Check the current time** when needed:
+   - Run `date "+%Y-%m-%d %H:%M"` to get the current date and time
+   - Do this BEFORE logging when:
+     - User says "until now", "just finished", "a few minutes ago"
+     - User uses relative times that depend on current time
+     - You need to determine today's date for "today"/"yesterday" references
+   - Never guess or ask the user for the current time - always check it directly
+
+2. Parse the user's natural language input to extract:
    - Time range (convert to HHMM format)
    - Activity description (becomes `notes`)
    - Any mentioned feelings, focus, energy levels
 
-2. Read `config/categories.json` and infer the best matching category
+3. Read `config/categories.json` and infer the best matching category
 
-3. If no category matches well:
+4. If no category matches well:
    - Suggest a new category to the user
    - If they agree, run `update_config.sh category "new_category"` first
    - Then log the event
 
-4. Read `config/moods.json` if user mentions a feeling, match to existing mood
+5. Read `config/moods.json` if user mentions a feeling, match to existing mood
 
-5. If no mood matches well:
+6. If no mood matches well:
    - Suggest a new mood to the user
    - If they agree, run `update_config.sh mood "new_mood"` first
 
-6. Build the JSON event and log it:
+7. Build the JSON event and log it:
    ```bash
    .claude/tools/log_event.sh <year> <month> <day> '<json_event>'
    ```
