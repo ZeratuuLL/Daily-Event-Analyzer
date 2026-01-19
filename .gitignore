@@ -1,0 +1,5 @@
+# Private user config (categories, moods)
+config/
+
+# User data (event logs)
+data/
