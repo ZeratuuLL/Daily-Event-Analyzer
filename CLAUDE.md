@@ -13,6 +13,13 @@ This creates local config files from defaults:
 - `config/categories.json` - Activity categories
 - `config/moods.json` - Mood options
 - `config/settings.json` - Python environment settings
+- `config/.initialized` - Marker file indicating system is ready
+
+**Checking if initialized:**
+```bash
+[ -f config/.initialized ] && echo "Initialized" || echo "Not initialized"
+```
+The system is initialized if `config/.initialized` exists.
 
 ## Logging Events
 
@@ -36,6 +43,13 @@ When the user describes an activity, log it using the `log_event.sh` tool.
 - `mood` - Must match a value from `config/moods.json` (default: "neutral")
 
 ### Logging Workflow
+
+**Getting current time:**
+If the user says "now" or "current time" for start/end, use:
+```bash
+.claude/tools/get_time.sh
+```
+This returns the current time in HHMM format.
 
 1. Parse the user's natural language input to extract:
    - Time range (convert to HHMM format)
