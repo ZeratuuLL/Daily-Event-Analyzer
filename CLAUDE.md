@@ -72,6 +72,98 @@ User says: "I worked on coding from 9am to 11am, felt really focused"
    .claude/tools/log_event.sh 2026 01 18 '{"start": "0900", "end": "1100", "category": "working", "notes": "worked on coding", "efficiency": "medium", "focused": 5, "energy": 3, "mood": "neutral"}'
    ```
 
+## Editing and Deleting Events
+
+When users want to correct or remove previously logged events, use the edit/delete tools.
+
+### Available Tools
+
+- `list_events.sh` - Show events for a date with line numbers
+- `edit_event.sh` - Replace an event at a specific line number
+- `delete_event.sh` - Remove an event at a specific line number
+
+### Edit/Delete Workflow
+
+1. **Identify the date** from user's description:
+   - "today" = current date
+   - "yesterday" = previous day
+   - "the coding session this morning" = today
+   - If unclear, ask the user or search
+
+2. **List events** for that date to find the right one:
+   ```bash
+   .claude/tools/list_events.sh <year> <month> <day>
+   ```
+   Output shows numbered events:
+   ```
+   Events for 2026-01-18:
+     #1: 09:00-11:00 [working] "API integration"
+         (efficiency: high, focused: 4, energy: 4, mood: motivated)
+     #2: 21:00-22:08 [working] "working on event logging tool"
+         (efficiency: medium, focused: 3, energy: 3, mood: neutral)
+
+   2 event(s) found.
+   ```
+
+3. **Match the user's description** to an event number:
+   - Use time, category, and notes to identify the correct event
+   - If ambiguous, ask the user to confirm which event
+
+4. **For edits**: Build complete updated JSON with ALL fields:
+   ```bash
+   .claude/tools/edit_event.sh <year> <month> <day> <line_number> '<complete_json_event>'
+   ```
+   **Important**: The edit replaces the entire event. Include all fields, not just changed ones.
+
+5. **For deletes**: Confirm with user before deleting:
+   ```bash
+   .claude/tools/delete_event.sh <year> <month> <day> <line_number>
+   ```
+
+### Finding Events When Date is Unknown
+
+If user says something like "sometime last week" or "that meeting with John":
+
+1. Use Grep to search across data files:
+   ```bash
+   grep "keyword" data/2026/01/*/events.jsonl
+   ```
+
+2. The file path in output reveals the date (e.g., `data/2026/01/15/events.jsonl`)
+
+3. Then use `list_events.sh` on that specific date
+
+### Example Edit
+
+User says: "Actually that coding session this morning ended at 11:30, not 11:00"
+
+1. List today's events:
+   ```bash
+   .claude/tools/list_events.sh 2026 01 18
+   ```
+   Output shows event #1 is the 09:00-11:00 coding session
+
+2. Build updated JSON (changing only `end`):
+   ```bash
+   .claude/tools/edit_event.sh 2026 01 18 1 '{"start": "0900", "end": "1130", "category": "working", "notes": "API integration", "efficiency": "high", "focused": 4, "energy": 4, "mood": "motivated"}'
+   ```
+
+### Example Delete
+
+User says: "Delete that duplicate entry from yesterday"
+
+1. List yesterday's events:
+   ```bash
+   .claude/tools/list_events.sh 2026 01 17
+   ```
+
+2. Identify the duplicate, confirm with user
+
+3. Delete:
+   ```bash
+   .claude/tools/delete_event.sh 2026 01 17 2
+   ```
+
 ## Analyzing Data
 
 For analysis requests, use the utilities in `scripts/analysis_utils.py`.
