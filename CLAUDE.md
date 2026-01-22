@@ -42,6 +42,29 @@ When the user describes an activity, log it using the `log_event.sh` tool.
 - `energy` - 0-5 scale (default: 3)
 - `mood` - Must match a value from `config/moods.json` (default: "neutral")
 
+### Handling Events Across Midnight
+
+**IMPORTANT PRINCIPLE:** Events that cross midnight must be split into two separate log entries.
+
+Rules:
+- Each event must start no earlier than `"0000"` and end no later than `"2359"`
+- For an event spanning midnight, create two entries:
+  1. First entry: From start time to `"2359"` (logged on the first day)
+  2. Second entry: From `"0000"` to end time (logged on the next day)
+- Both entries should have the same category, notes, and attributes (efficiency, focused, energy, mood)
+
+**Example:**
+User says: "I slept from 10:30pm to 8:30am"
+
+Log as two events:
+```bash
+# Day 1 (e.g., 2026-01-20): Sleep from 22:30 to 23:59
+.claude/tools/log_event.sh 2026 01 20 '{"start": "2230", "end": "2359", "category": "sleeping", "notes": "sleep", "efficiency": "medium", "focused": 3, "energy": 3, "mood": "neutral"}'
+
+# Day 2 (e.g., 2026-01-21): Sleep from 00:00 to 08:30
+.claude/tools/log_event.sh 2026 01 21 '{"start": "0000", "end": "0830", "category": "sleeping", "notes": "sleep", "efficiency": "medium", "focused": 3, "energy": 3, "mood": "neutral"}'
+```
+
 ### Logging Workflow
 
 **Getting current time:**
@@ -274,3 +297,7 @@ Located in `config/` (gitignored for privacy):
 ```
 
 Default values are in `config_defaults/` (tracked in git).
+
+## Code Management
+
+When checking in code changes: Always ensure local main is up to date before creating a new branch and PR.
